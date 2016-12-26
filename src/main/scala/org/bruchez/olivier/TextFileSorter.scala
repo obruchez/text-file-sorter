@@ -23,7 +23,10 @@ case class ItemToSort(lineNumber: LineNumber, value: String)
 
 case class ItemsToSort(itemsFile: File, items: Seq[ItemToSort]) {
   def sort(): Try[Unit] = {
-    val sorted = items.sortWith(lowerThan)
+    // Make sure a sequence is always shuffled the same way
+    Random.setSeed(6029271)
+
+    val sorted = Random.shuffle(items).sortWith(lowerThan)
 
     val outputFile = outputFileFromItemsFile(itemsFile)
 
@@ -90,13 +93,19 @@ object Triplets {
       case Some(lowerThan) ⇒
         lowerThan
       case None ⇒
-        val lowerThan = lowerThanFromStdin(first, second)
-        val triplet = Triplet(first.lineNumber, second.lineNumber, lowerThan)
+        // Assumption: no line is equal => not "lower than" = "greater than"
+        triplets.lowerThan(second, first) match {
+          case Some(invertedLowerThan) ⇒
+            !invertedLowerThan
+          case None ⇒
+            val lowerThan = lowerThanFromStdin(first, second)
+            val triplet = Triplet(first.lineNumber, second.lineNumber, lowerThan)
 
-        val newTriplets = triplets.withTriplet(triplet)
-        newTriplets.persist(tripletsFile).get
+            val newTriplets = triplets.withTriplet(triplet)
+            newTriplets.persist(tripletsFile).get
 
-        lowerThan
+            lowerThan
+        }
     }
   }
 
