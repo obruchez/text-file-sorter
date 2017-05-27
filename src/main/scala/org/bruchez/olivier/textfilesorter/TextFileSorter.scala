@@ -1,4 +1,4 @@
-package org.bruchez.olivier
+package org.bruchez.olivier.textfilesorter
 
 import java.io._
 
