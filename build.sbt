@@ -8,7 +8,7 @@ organization := "org.bruchez.olivier"
 
 version := "1.0"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.3"
 
 resolvers ++= Seq(
   "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
