@@ -24,7 +24,7 @@ case class ItemToSort(lineNumber: LineNumber, value: String)
 case class ItemsToSort(itemsFile: File, items: Seq[ItemToSort]) {
   def sort(): Try[Unit] = {
     // Make sure a sequence is always shuffled the same way
-    Random.setSeed(6029271)
+    Random.setSeed(ItemsToSort.ConstantRandomSeed)
 
     val sorted = Random.shuffle(items).sortWith(lowerThan)
 
@@ -55,6 +55,8 @@ object ItemsToSort {
 
     ItemsToSort(itemsFile, itemsToSort)
   }
+
+  protected val ConstantRandomSeed = 6029271
 }
 
 case class Triplet(first: LineNumber, second: LineNumber, lowerThan: Boolean) {
