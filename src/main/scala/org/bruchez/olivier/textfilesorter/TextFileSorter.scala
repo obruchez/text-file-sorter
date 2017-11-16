@@ -44,7 +44,13 @@ object ItemsToSort {
   def apply(itemsFile: File): ItemsToSort = {
     val itemsToSort =
       for {
-        (line, index) ← Source.fromFile(itemsFile).getLines.toList.map(_.trim).filter(_.nonEmpty).zipWithIndex
+        (line, index) ← Source
+          .fromFile(itemsFile)
+          .getLines
+          .toList
+          .map(_.trim)
+          .filter(_.nonEmpty)
+          .zipWithIndex
       } yield ItemToSort(LineNumber(index), line)
 
     ItemsToSort(itemsFile, itemsToSort)
@@ -52,12 +58,15 @@ object ItemsToSort {
 }
 
 case class Triplet(first: LineNumber, second: LineNumber, lowerThan: Boolean) {
-  def asString: String = s"${first.lineNumber},${second.lineNumber},${if (lowerThan) 1 else 0}"
+  def asString: String =
+    s"${first.lineNumber},${second.lineNumber},${if (lowerThan) 1 else 0}"
 }
 
 case class Triplets(triplets: Seq[Triplet]) {
   def lowerThan(first: ItemToSort, second: ItemToSort): Option[Boolean] =
-    triplets.find(t ⇒ t.first == first.lineNumber && t.second == second.lineNumber).map(_.lowerThan)
+    triplets
+      .find(t ⇒ t.first == first.lineNumber && t.second == second.lineNumber)
+      .map(_.lowerThan)
 
   def withTriplet(triplet: Triplet): Triplets =
     Triplets(triplets :+ triplet)
@@ -70,17 +79,25 @@ object Triplets {
   def apply(tripletsFile: File): Triplets = {
     val triplets =
       for {
-        line ← Source.fromFile(tripletsFile).getLines.toList.map(_.trim).filter(_.nonEmpty)
+        line ← Source
+          .fromFile(tripletsFile)
+          .getLines
+          .toList
+          .map(_.trim)
+          .filter(_.nonEmpty)
         parts = line.split(",")
         firstInt = parts(0).toInt
         secondInt = parts(1).toInt
         lowerThanInt = parts(2).toInt
-      } yield Triplet(LineNumber(firstInt), LineNumber(secondInt), lowerThanInt != 0)
+      } yield
+        Triplet(LineNumber(firstInt), LineNumber(secondInt), lowerThanInt != 0)
 
     Triplets(triplets)
   }
 
-  def lowerThan(itemsFile: File, first: ItemToSort, second: ItemToSort): Boolean = synchronized {
+  def lowerThan(itemsFile: File,
+                first: ItemToSort,
+                second: ItemToSort): Boolean = synchronized {
     val tripletsFile = tripletsFileFromItemsFile(itemsFile)
     val triplets = try {
       Triplets(tripletsFile)
@@ -99,7 +116,8 @@ object Triplets {
             !invertedLowerThan
           case None ⇒
             val lowerThan = lowerThanFromStdin(first, second)
-            val triplet = Triplet(first.lineNumber, second.lineNumber, lowerThan)
+            val triplet =
+              Triplet(first.lineNumber, second.lineNumber, lowerThan)
 
             val newTriplets = triplets.withTriplet(triplet)
             newTriplets.persist(tripletsFile).get
@@ -109,7 +127,8 @@ object Triplets {
     }
   }
 
-  protected def lowerThanFromStdin(first: ItemToSort, second: ItemToSort): Boolean = {
+  protected def lowerThanFromStdin(first: ItemToSort,
+                                   second: ItemToSort): Boolean = {
     println("Which is lower?")
     println(s" 1) ${first.value}")
     println(s" 2) ${second.value}")
