@@ -91,15 +91,12 @@ object Triplets {
         firstInt = parts(0).toInt
         secondInt = parts(1).toInt
         lowerThanInt = parts(2).toInt
-      } yield
-        Triplet(LineNumber(firstInt), LineNumber(secondInt), lowerThanInt != 0)
+      } yield Triplet(LineNumber(firstInt), LineNumber(secondInt), lowerThanInt != 0)
 
     Triplets(triplets)
   }
 
-  def lowerThan(itemsFile: File,
-                first: ItemToSort,
-                second: ItemToSort): Boolean = synchronized {
+  def lowerThan(itemsFile: File, first: ItemToSort, second: ItemToSort): Boolean = synchronized {
     val tripletsFile = tripletsFileFromItemsFile(itemsFile)
     val triplets = try {
       Triplets(tripletsFile)
@@ -129,8 +126,7 @@ object Triplets {
     }
   }
 
-  protected def lowerThanFromStdin(first: ItemToSort,
-                                   second: ItemToSort): Boolean = {
+  protected def lowerThanFromStdin(first: ItemToSort, second: ItemToSort): Boolean = {
     println("Which is lower?")
     println(s" 1) ${first.value}")
     println(s" 2) ${second.value}")
